@@ -13,8 +13,7 @@ df.umps <- read_csv("~/Dropbox/mlb-shirking/Data/umpireAssignments08to16.csv")
 df.umps <- select(df.umps, game_pk, UmpName, permContract, umpBirthYear) 
 df.pitches <- left_join(df.pitches, df.umps) %>% 
   mutate(ump_fulltime = ifelse(is.na(permContract), "Part time", 
-  ifelse(permContract < game_year, "Full time", "Part time")), 
-  geyser = ifelse(umpBirthYear < 1960, "old-timer", ifelse(umpBirthYear < 1970, "mid-timer", "youngin")))
+  ifelse(permContract < game_year, "Full time", "Part time")))
 
 
 data.all <- df.pitches %>% 
