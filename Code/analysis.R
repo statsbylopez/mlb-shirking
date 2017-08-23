@@ -184,8 +184,8 @@ anova(m1, m2, test="LRT")
 #### Visualizing changes in strike zone
 ################################################################################
 
-
-pre <- expand.grid(px = seq(-2, 2, 0.05), pz = seq(0.5, 4.5, 0.05), stand = c("R", "L"), 
+seq <- 0.01 ## Change to 0.1 for quicker run time 
+pre <- expand.grid(px = seq(-2, 2, seq), pz = seq(0.5, 4.5, seq), stand = c("R", "L"), 
                    score.three = c("Loss Imminent", "Win Imminent", "Neutral"))
 pre$predict <- predict.gam(m1, pre, type = "response")
 pre.10 <- pre %>% 
@@ -219,7 +219,7 @@ p <- ggplot(pre.all.both, aes(x=px, y=pz, z = diff)) +
   #labs(title = "Change in strike zone (absolute percentages)", 
   #     subtitle = "2008-2016 games, extra innings") + facet_wrap(~ type + stand, nrow = 2) + theme_bw()
 p
-
+ggsave(p, "~/Dropbox/mlb-shirking/Figures/Fig1.pdf")
 
 
 
