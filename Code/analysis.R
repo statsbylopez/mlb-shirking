@@ -20,7 +20,7 @@ data.all <- df.pitches %>%
   mutate(runner.on = !is.na(on_1b) | !is.na(on_2b) | !is.na(on_3b))
 
 data.all1 <- data.all %>% 
-  select(game_date, game_year, UmpName, umpBirthYear, ump_fulltime, geyser, pitcher, batter, home_team, away_team, description, pitch_type, zone, plate_x, plate_z, 
+  select(game_date, game_year, UmpName, umpBirthYear, ump_fulltime, pitcher, batter, home_team, away_team, description, pitch_type, zone, plate_x, plate_z, 
           inning, inning_topbot, pitch_number, des, stand, at_bat_number, pitch_number, runner.on, sz_bot, sz_top) %>% 
           rename(px = plate_x, pz = plate_z) %>% 
   mutate(gid = paste(home_team, away_team, game_date), 
@@ -165,7 +165,6 @@ m1 <- bam(strike ~ s(px, pz, by = factor(stand), k = 50) +
 summary(m1)
 
 
-
 ## Naive model - no score state effect
 m2 <- bam(strike ~ s(px, pz, by = factor(stand), k = 50), 
           data = bottom.pitches.fit, method = "fREML", 
@@ -186,7 +185,7 @@ anova(m1, m2, test="LRT")
 seq <- 0.05 ## Change to 0.01 for better figure as in the manuscript
 pre <- expand.grid(px = seq(-2, 2, seq), pz = seq(0.5, 4.5, seq), stand = c("R", "L"), 
                    score.three = c("Loss Imminent", "Win Imminent", "Neutral"))
-pre$predict <- predict.gam(m1, pre, type = "response")
+pre$predict <- predict.gam(m3, pre, type = "response")
 pre.10 <- pre %>% 
   spread(score.three, predict) %>% 
   rename(loss.prob = `Loss Imminent`, 
