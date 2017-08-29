@@ -17,6 +17,7 @@ library(PBSmapping)
 ################################################################################
 #### Download data via baseballwithr package: 
 #### Weekly downloads, 2008 to 2016
+#### Weekly downloads required given scraping constraints of baseball savant website
 ################################################################################
 
 
@@ -41,24 +42,26 @@ end.dates  <- c(seq(ymd('2008-04-07'),ymd('2008-10-06'), by = 'weeks'),
                 seq(ymd('2016-04-07'),ymd('2016-10-06'), by = 'weeks'))
 
 
+
 df.dates <- data.frame(start.dates, end.dates)
 df.pitches <- NULL
 rows <- c(1:nrow(df.dates)) ## note: no extra inning games in cycle 118
+var.list <- c("game_date", "game_year", "game_pk", "pitcher", "batter", "player_name", "home_team", "away_team", 
+              "description", "pitch_type", "zone", "plate_x", "plate_z", 
+          "inning", "inning_topbot", "pitch_number", "des", "stand", "at_bat_number", "pitch_number", "runner.on", "sz_bot", "sz_top", "on_1b", "on_2b", "on_3b")
+
 
 for (i in 1:nrow(df.dates)){
   temp.df <- scrape_statcast_savant_batter_all(as.character(df.dates[i,1]), as.character(df.dates[i, 2]))
-  #temp.df <- subset(temp.df, inning >= 10)
+  temp.df <- filter(temp.df, inning >= 10 | inning == 1)
+  temp.df <- temp.df[, colnames(temp.df) %in% var.list]
   df.pitches <- rbind(df.pitches, temp.df)
   print(paste(i, "th row of ", nrow(df.dates)))
 }
 
 
 ## Download pitches from first and tenth innings
-write.csv(filter(df.pitches, inning ==1 | inning > 9), "~/Dropbox/MLB_tenth/first_tenth_pitches.csv", row.names = FALSE)
-
-
-## Alternative code -- to download all pitches in all games
-#write.csv(df.pitches, "~/Dropbox/mlb-shirking/Data/allpitches.csv", row.names = FALSE)
+write.csv(filter(df.pitches, inning ==1 | inning > 9), "~/Dropbox/mlb-shirking/Data/first_tenth_pitches.csv", row.names = FALSE)
 
 
 

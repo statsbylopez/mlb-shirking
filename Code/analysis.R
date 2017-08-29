@@ -159,11 +159,11 @@ bottom.pitches.fit <- bottom.pitches.fit %>%
 
 ## Full model - score state effect by strike zone location
 m1 <- bam(strike ~ s(px, pz, by = factor(stand), k = 50) + 
-            s(px, pz, by = factor(score.three), k = 50), 
+            s(px, pz, by = factor(score.three), k = 50) + 
+          factor(score.three) + factor(stand),
           data = bottom.pitches.fit, method = "fREML", 
           discrete = TRUE, family = binomial(link='logit'))
 summary(m1)
-
 
 ## Naive model - no score state effect
 m2 <- bam(strike ~ s(px, pz, by = factor(stand), k = 50), 
@@ -185,7 +185,8 @@ anova(m1, m2, test="LRT")
 seq <- 0.05 ## Change to 0.01 for better figure as in the manuscript
 pre <- expand.grid(px = seq(-2, 2, seq), pz = seq(0.5, 4.5, seq), stand = c("R", "L"), 
                    score.three = c("Loss Imminent", "Win Imminent", "Neutral"))
-pre$predict <- predict.gam(m3, pre, type = "response")
+pre$predict <- predict.gam(m1, pre, type = "response")
+
 pre.10 <- pre %>% 
   spread(score.three, predict) %>% 
   rename(loss.prob = `Loss Imminent`, 
@@ -211,12 +212,13 @@ max(d1 - d2)
 p <- ggplot(pre.all.both, aes(x=px, y=pz, z = diff)) + 
   geom_tile(aes(fill = diff)) + 
   scale_fill_gradient2("Change in strike %", 
-                       low = "red", mid = "white", high = "darkblue", 
-                       labels = c("-5%", "0%", "+5%", "+10%"), breaks = c(-0.05, 0, 0.05, 0.1)) + 
+                       low = "red", mid = "white", high = "darkblue") + 
   xlab("Horizontal pitch location") + ylab("Vertical pitch location") + facet_wrap(~ type + stand, nrow = 2) + theme_bw(16)
   #labs(title = "Change in strike zone (absolute percentages)", 
   #     subtitle = "2008-2016 games, extra innings") + facet_wrap(~ type + stand, nrow = 2) + theme_bw()
 p
+
+
 ggsave(p, "~/Dropbox/mlb-shirking/Figures/Fig1.pdf")
 
 
@@ -232,8 +234,7 @@ bottom.pitches.2 <- bottom.pitches1 %>%
          pz = pz - hdiff)
 
 
-m1.first <- bam(strike ~ s(px, pz, by = factor(stand), k = 50) + 
-                  s(px, pz, by = factor(score.three), k = 50), 
+m1.first <- bam(strike ~ s(px, pz, by = factor(stand), k = 50) +  factor(score.three), 
             data = bottom.pitches.2, method = "fREML", 
             discrete = TRUE, family = binomial(link='logit'))
 
@@ -275,6 +276,4 @@ p <- ggplot(pre.all.both, aes(x=px, y=pz, z = diff)) +
   labs(title = "Change in strike zone, absolute percentages", 
        subtitle = "2008-2016 games, 1st and 10th innings") + facet_wrap(~inning + type + stand, nrow = 2) + theme_bw()
 p
-
-
 
