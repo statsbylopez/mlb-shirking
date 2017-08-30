@@ -104,19 +104,6 @@ ot3
 ot4
 
 
-### Overall given umpire status
-table(bottom.pitches$ump_fulltime)
-overall.ump <- bottom.pitches %>% 
-  group_by(ump_fulltime, game.state)  %>% 
-  summarise(strike.rate = mean(called.type == "strike"),  strikes = sum(called.type == "strike"), balls = sum(called.type == "ball"),  n())
-ou1 <- odds.ratio(overall.ump$strike.rate[1], overall.ump$strike.rate[2], overall.ump$strikes[1], overall.ump$strikes[2], overall.ump$balls[1], overall.ump$balls[2])
-ou2 <- odds.ratio(overall.ump$strike.rate[3], overall.ump$strike.rate[2], overall.ump$strikes[1], overall.ump$strikes[2], overall.ump$balls[1], overall.ump$balls[2])
-ou3 <- odds.ratio(overall.ump$strike.rate[4], overall.ump$strike.rate[5], overall.ump$strikes[4], overall.ump$strikes[5], overall.ump$balls[4], overall.ump$balls[5])
-ou4 <- odds.ratio(overall.ump$strike.rate[6], overall.ump$strike.rate[5], overall.ump$strikes[6], overall.ump$strikes[5], overall.ump$balls[6], overall.ump$balls[5])
-ou1
-ou2
-ou3
-ou4
 
 ### Overall given inning
 table(bottom.pitches$inning)
