@@ -8,13 +8,7 @@ library(tidyverse)
 #### Initial data wrangling: extra innings only
 ################################################################################
  
-df.pitches <- read_csv("~/Dropbox/mlb-shirking/Data/first_tenth_pitches.csv")
-df.umps <- read_csv("~/Dropbox/mlb-shirking/Data/umpireAssignments08to16.csv")
-df.umps <- select(df.umps, game_pk, UmpName, permContract, umpBirthYear) 
-df.pitches <- left_join(df.pitches, df.umps) %>% 
-  mutate(ump_fulltime = ifelse(is.na(permContract), "Part time", 
-  ifelse(permContract < game_year, "Full time", "Part time")))
-
+df.pitches <- read_csv("~/first_tenth_pitches.csv")
 
 data.all <- df.pitches %>% 
   mutate(runner.on = !is.na(on_1b) | !is.na(on_2b) | !is.na(on_3b))
@@ -48,7 +42,7 @@ data.all3 <- data.all2 %>%
   filter(inning_topbot == "Bot") %>% 
   group_by(gid, inning) %>%
   mutate(runs.scored.home.cum = cumsum(runs), 
-         score.three = ifelse(runs.scored.home.cum < runs.scored.away.all, "Loss Imminent", 
+         game.state = ifelse(runs.scored.home.cum < runs.scored.away.all, "Loss Imminent", 
                               ifelse(runner.on, "Win Imminent", "Neutral")))
 
 ## Filter for taken pitches
@@ -67,11 +61,11 @@ bottom.pitches <- bottom.pitches.all %>% filter(inning > 9)
 
 ## Anecdote
 bottom.pitches %>% 
-  filter(game_year > 2015, true.type == "strike", called.type == "ball", score.three == "Win Imminent", runner.on) %>% 
+  filter(game_year > 2015, true.type == "strike", called.type == "ball", game.state == "Win Imminent", runner.on) %>% 
   group_by(gid)  %>% 
   count() %>% arrange(-n)
 
-ex <- bottom.pitches %>% filter(gid == "CHC STL 2016-08-11", score.three == "Win Imminent")
+ex <- bottom.pitches %>% filter(gid == "CHC STL 2016-08-11", game.state == "Win Imminent")
 ggplot(ex, aes(px, pz, colour = called.type)) + geom_point()
 #http://www.cbssports.com/mlb/news/watch-cubs-win-10th-straight-game-on-a-controversial-ball-four-call/
 
@@ -86,7 +80,7 @@ odds.ratio <- function(p1, p2, n1, n2, n3, n4){
 
 
 overall <- bottom.pitches %>% 
-  group_by(score.three) %>% 
+  group_by(game.state) %>% 
   summarise(strike.rate = mean(called.type == "strike"), strikes = sum(called.type == "strike"), balls = sum(called.type == "ball"),  n())
 
 o1 <- odds.ratio(overall$strike.rate[1], overall$strike.rate[2], overall$strikes[1], overall$strikes[2], overall$balls[1], overall$balls[2])
@@ -97,7 +91,7 @@ o2
 
 ## Overall given true state
 overall.true <- bottom.pitches %>% 
-  group_by(true.type, score.three) %>% 
+  group_by(true.type, game.state) %>% 
   summarise(strike.rate = mean(called.type == "strike"),  strikes = sum(called.type == "strike"), balls = sum(called.type == "ball"),  n())
 
 ot1 <- odds.ratio(overall.true$strike.rate[1], overall.true$strike.rate[2], overall.true$strikes[1], overall.true$strikes[2], overall.true$balls[1], overall.true$balls[2])
@@ -113,7 +107,7 @@ ot4
 ### Overall given umpire status
 table(bottom.pitches$ump_fulltime)
 overall.ump <- bottom.pitches %>% 
-  group_by(ump_fulltime, score.three)  %>% 
+  group_by(ump_fulltime, game.state)  %>% 
   summarise(strike.rate = mean(called.type == "strike"),  strikes = sum(called.type == "strike"), balls = sum(called.type == "ball"),  n())
 ou1 <- odds.ratio(overall.ump$strike.rate[1], overall.ump$strike.rate[2], overall.ump$strikes[1], overall.ump$strikes[2], overall.ump$balls[1], overall.ump$balls[2])
 ou2 <- odds.ratio(overall.ump$strike.rate[3], overall.ump$strike.rate[2], overall.ump$strikes[1], overall.ump$strikes[2], overall.ump$balls[1], overall.ump$balls[2])
@@ -127,13 +121,13 @@ ou4
 ### Overall given inning
 table(bottom.pitches$inning)
 bottom.pitches %>% 
-  group_by(inning, score.three) %>% 
+  group_by(inning, game.state) %>% 
   summarise(strike.rate = mean(called.type == "strike"), n()) %>% print.data.frame()
 
 ### Overall given season
 table(bottom.pitches$game_year)
 bottom.pitches %>% 
-  group_by(game_year, score.three) %>% 
+  group_by(game_year, game.state) %>% 
   summarise(strike.rate = mean(called.type == "strike"), n()) %>% print.data.frame()
 
 ################################################################################
@@ -157,8 +151,8 @@ bottom.pitches.fit <- bottom.pitches.fit %>%
 
 ## Full model - score state effect by strike zone location
 m1 <- bam(strike ~ s(px, pz, by = factor(stand), k = 50) + 
-            s(px, pz, by = factor(score.three), k = 50) + 
-          factor(score.three) + factor(stand),
+            s(px, pz, by = factor(game.state), k = 50) + 
+          factor(game.state) + factor(stand),
           data = bottom.pitches.fit, method = "fREML", 
           discrete = TRUE, family = binomial(link='logit'))
 summary(m1)
@@ -182,11 +176,11 @@ anova(m1, m2, test="LRT")
 
 seq <- 0.05 ## Change to 0.01 for better figure as in the manuscript
 pre <- expand.grid(px = seq(-2, 2, seq), pz = seq(0.5, 4.5, seq), stand = c("R", "L"), 
-                   score.three = c("Loss Imminent", "Win Imminent", "Neutral"))
+                   game.state = c("Loss Imminent", "Win Imminent", "Neutral"))
 pre$predict <- predict.gam(m1, pre, type = "response")
 
 pre.10 <- pre %>% 
-  spread(score.three, predict) %>% 
+  spread(game.state, predict) %>% 
   rename(loss.prob = `Loss Imminent`, 
          win.prob = `Win Imminent`, 
          tied.prob = `Neutral`) %>% 
@@ -232,7 +226,7 @@ bottom.pitches.2 <- bottom.pitches1 %>%
          pz = pz - hdiff)
 
 
-m1.first <- bam(strike ~ s(px, pz, by = factor(stand), k = 50) +  factor(score.three), 
+m1.first <- bam(strike ~ s(px, pz, by = factor(stand), k = 50) +  factor(game.state), 
             data = bottom.pitches.2, method = "fREML", 
             discrete = TRUE, family = binomial(link='logit'))
 
@@ -242,11 +236,11 @@ m1.first <- bam(strike ~ s(px, pz, by = factor(stand), k = 50) +  factor(score.t
 
 pre <- expand.grid(px = seq(-2, 2, 0.05), pz = seq(0.5, 4.5, 0.05), 
                    stand = c("R", "L"),  
-                   score.three = c("Loss Imminent", "Win Imminent", "Neutral"))
+                   game.state = c("Loss Imminent", "Win Imminent", "Neutral"))
 pre$predict <- predict.gam(m1.first, pre, type = "response")
 
 pre.1 <- pre %>% 
-  spread(score.three, predict) %>% 
+  spread(game.state, predict) %>% 
   rename(loss.prob = `Loss Imminent`, 
          win.prob = `Win Imminent`, 
          tied.prob = `Neutral`) %>% 
