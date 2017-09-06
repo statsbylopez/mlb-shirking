@@ -51,7 +51,7 @@ var.list <- c("game_date", "game_year", "game_pk", "pitcher", "batter", "player_
           "inning", "inning_topbot", "pitch_number", "des", "stand", "at_bat_number", "pitch_number", "runner.on", "sz_bot", "sz_top", "on_1b", "on_2b", "on_3b")
 
 
-for (i in 240:nrow(df.dates)){
+for (i in 1:nrow(df.dates)){
   temp.df <- scrape_statcast_savant_batter_all(as.character(df.dates[i,1]), as.character(df.dates[i, 2]))
   temp.df <- filter(temp.df, inning >= 10 | inning == 1)
   temp.df <- temp.df[, colnames(temp.df) %in% var.list]
