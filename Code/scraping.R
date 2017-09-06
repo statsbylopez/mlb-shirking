@@ -45,7 +45,7 @@ end.dates  <- c(seq(ymd('2008-04-07'),ymd('2008-10-06'), by = 'weeks'),
 
 df.dates <- data.frame(start.dates, end.dates)
 df.pitches <- NULL
-rows <- c(1:nrow(df.dates)) ## note: no extra inning games in cycle 118
+rows <- c(1:nrow(df.dates)) 
 var.list <- c("game_date", "game_year", "game_pk", "pitcher", "batter", "player_name", "home_team", "away_team", 
               "description", "pitch_type", "zone", "plate_x", "plate_z", 
           "inning", "inning_topbot", "pitch_number", "des", "stand", "at_bat_number", "pitch_number", "runner.on", "sz_bot", "sz_top", "on_1b", "on_2b", "on_3b")
