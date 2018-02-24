@@ -140,8 +140,7 @@ bottom.pitches.fit <- bottom.pitches.fit %>%
 ## Full model - score state effect by strike zone location
 m1 <- bam(strike ~ s(px, pz, by = factor(stand), k = 50) + 
             s(px, pz, by = factor(game.state), k = 50) + 
-          factor(game.state) + factor(stand) + 
-            factor(),
+          factor(game.state) + factor(stand),
           data = bottom.pitches.fit, method = "fREML", 
           discrete = TRUE, family = binomial(link='logit'))
 summary(m1)
@@ -200,7 +199,7 @@ p <- ggplot(pre.all.both, aes(x=px, y=pz, z = diff)) +
 p
 
 
-ggsave(p, "~/Dropbox/mlb-shirking/Figures/Fig1.pdf")
+#ggsave(p, "~/Dropbox/mlb-shirking/Figures/Fig1.pdf")
 
 
 
