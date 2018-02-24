@@ -8,7 +8,7 @@ library(tidyverse)
 #### Initial data wrangling: extra innings only
 ################################################################################
  
-df.pitches <- read_csv("~/first_tenth_pitches.csv")
+df.pitches <- read_csv("~/Dropbox/mlb-shirking/Data/first_tenth_pitches.csv")
 
 data.all <- df.pitches %>% 
   mutate(runner.on = !is.na(on_1b) | !is.na(on_2b) | !is.na(on_3b))
@@ -129,7 +129,8 @@ bottom.pitches.fit <- bottom.pitches
 ## Adjust for batter height using lefty/righty average strike zone heights (results similar without this)
 
 bottom.pitches %>% filter(!is.na(sz_bot)) %>% 
-  group_by(stand) %>% summarise(ave_bot = mean(sz_bot), ave_top = mean(sz_top), n = n())
+  group_by(stand) %>% 
+  summarise(ave_bot = mean(sz_bot), ave_top = mean(sz_top), n = n())
 
 bottom.pitches.fit <- bottom.pitches.fit %>% 
   mutate(hdiff = ifelse(stand == "L", .5*(sz_bot - 1.603585) + .5*(sz_top - 3.395832), 
@@ -139,7 +140,8 @@ bottom.pitches.fit <- bottom.pitches.fit %>%
 ## Full model - score state effect by strike zone location
 m1 <- bam(strike ~ s(px, pz, by = factor(stand), k = 50) + 
             s(px, pz, by = factor(game.state), k = 50) + 
-          factor(game.state) + factor(stand),
+          factor(game.state) + factor(stand) + 
+            factor(),
           data = bottom.pitches.fit, method = "fREML", 
           discrete = TRUE, family = binomial(link='logit'))
 summary(m1)
