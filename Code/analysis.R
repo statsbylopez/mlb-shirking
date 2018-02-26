@@ -180,7 +180,7 @@ anova(m1, m2, test="LRT")  ## Reject naive model in factor of a term for score s
 #### Visualizing changes in strike zone
 ################################################################################
 
-seq <- 0.05 ## Change to 0.01 for better figure as in the manuscript
+seq <- 0.05 ## Change to 0.01 for exact numbers as in the manuscript
 pre <- expand.grid(px = seq(-2, 2, seq), 
                    pz = seq(0.5, 4.5, seq), 
                    strikes = 0, 
@@ -223,13 +223,13 @@ p <- ggplot(filter(pre.all.both, stand == "R"), aes(x=px, y=pz, z = diff)) +
   xlab("Horizontal pitch location") + 
   ylab("Vertical pitch location") + 
   facet_wrap(~ type, nrow = 2) + 
-  theme_bw(16) 
+  theme_bw() 
   #labs(title = "Change in strike zone (absolute percentages)", 
   #     subtitle = "2008-2016 games, extra innings") + facet_wrap(~ type + stand, nrow = 2) + theme_bw()
 p
 
 
-ggsave(p, file = "~/Dropbox/mlb-shirking/Figures/Fig1.pdf")
+ggsave(p, file = "~/Dropbox/mlb-shirking/Figures/Fig1.pdf", height = 6, width = 5)
 
 
 
