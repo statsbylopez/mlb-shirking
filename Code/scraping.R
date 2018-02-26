@@ -1,8 +1,9 @@
 ########################################################################################
 #### Code for MLB analyis: do umpires call balls and strikes as to end the game early? 
+#### This .R code contains code for scraping balls/strikes calls and initial data cleaning
 ########################################################################################
 
-
+### Required packages
 library(baseballr)
 library(mgcv)
 library(parallel)
@@ -123,4 +124,5 @@ nrow(df.pitches.bottom)
 ## number of true strikes and balls
 table(df.pitches.bottom$true.type)
 
+write.csv(df.pitches.bottom, "~/bottom_tenth_pitches.csv", row.names = FALSE)
 
