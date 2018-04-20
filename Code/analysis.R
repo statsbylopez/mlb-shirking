@@ -88,21 +88,6 @@ ot4
 
 
 
-### Overall given inning
-table(bottom.pitches$inning)
-bottom.pitches %>% 
-  group_by(inning, game.state) %>% 
-  summarise(strike.rate = mean(called.type == "strike"), n()) %>% 
-  print.data.frame()
-
-### Overall given season
-table(bottom.pitches$game_year)
-bottom.pitches %>% 
-  group_by(game_year, game.state) %>% 
-  summarise(strike.rate = mean(called.type == "strike"), n()) %>% print.data.frame()
-
-
-
 
 ################################################################################
 #### Generalized additive models: 10th inning onwards
@@ -227,7 +212,7 @@ p <- ggplot(filter(pre.all.both, stand == "R"), aes(x=px, y=pz, z = diff)) +
   #labs(title = "Change in strike zone (absolute percentages)", 
   #     subtitle = "2008-2016 games, extra innings") + facet_wrap(~ type + stand, nrow = 2) + theme_bw()
 p
-
+ 
 
 ggsave(p, file = "~/Dropbox/mlb-shirking/Figures/Fig1.pdf", height = 6, width = 5)
 
