@@ -19,6 +19,8 @@
 [1] 1.152730 1.089765 1.219334
 > o2
 [1] 0.8370889 0.7913645 0.8854552
+
+
 > overall.true <- bottom.pitches %>% 
 +   group_by(true.type, game.state) %>% 
 +   summarise(strike.rate = mean(called.type == "strike"),  
@@ -56,99 +58,12 @@
 [1] 1.139778 1.012479 1.283081
 > ot4
 [1] 0.7638031 0.6824580 0.8548441
-> table(bottom.pitches$inning)
 
-   10    11    12    13    14    15    16    17    18    19    20    21    22 
-14743  8114  4720  2509  1365   570   311   180   164    73    20     5    11 
-> bottom.pitches %>% 
-+   group_by(inning, game.state) %>% 
-+   summarise(strike.rate = mean(called.type == "strike"), n()) %>% 
-+   print.data.frame()
-   inning    game.state strike.rate  n()
-1      10 Loss Imminent   0.3482120 3831
-2      10       Neutral   0.3115107 6507
-3      10  Win Imminent   0.2694665 4405
-4      11 Loss Imminent   0.3405051 2138
-5      11       Neutral   0.3122960 3676
-6      11  Win Imminent   0.2708696 2300
-7      12 Loss Imminent   0.3203343 1436
-8      12       Neutral   0.3095472 2032
-9      12  Win Imminent   0.2827476 1252
-10     13 Loss Imminent   0.3480742  701
-11     13       Neutral   0.3047252 1037
-12     13  Win Imminent   0.2931258  771
-13     14 Loss Imminent   0.3528265  513
-14     14       Neutral   0.2837022  497
-15     14  Win Imminent   0.2563380  355
-16     15 Loss Imminent   0.3333333  144
-17     15       Neutral   0.3217054  258
-18     15  Win Imminent   0.2500000  168
-19     16 Loss Imminent   0.3186813   91
-20     16       Neutral   0.2516556  151
-21     16  Win Imminent   0.3043478   69
-22     17 Loss Imminent   0.3636364   22
-23     17       Neutral   0.2600000  100
-24     17  Win Imminent   0.3275862   58
-25     18 Loss Imminent   0.3200000   50
-26     18       Neutral   0.4117647   68
-27     18  Win Imminent   0.1956522   46
-28     19 Loss Imminent   0.2592593   27
-29     19       Neutral   0.2903226   31
-30     19  Win Imminent   0.3333333   15
-31     20 Loss Imminent   0.1538462   13
-32     20       Neutral   0.4285714    7
-33     21       Neutral   0.4000000    5
-34     22 Loss Imminent   0.2727273   11
-> table(bottom.pitches$game_year)
+########################################################################
+######### Regression models
+########################################################################
 
-2008 2009 2010 2011 2012 2013 2014 2015 2016 
-3476 3419 3354 3716 3484 4318 4256 3486 3276 
-> bottom.pitches %>% 
-+   group_by(game_year, game.state) %>% 
-+   summarise(strike.rate = mean(called.type == "strike"), n()) %>% print.data.frame()
-   game_year    game.state strike.rate  n()
-1       2008 Loss Imminent   0.3352999 1017
-2       2008       Neutral   0.3036466 1426
-3       2008  Win Imminent   0.2826718 1033
-4       2009 Loss Imminent   0.3461951  933
-5       2009       Neutral   0.3098220 1517
-6       2009  Win Imminent   0.2559340  969
-7       2010 Loss Imminent   0.3471933  962
-8       2010       Neutral   0.3147766 1455
-9       2010  Win Imminent   0.2689434  937
-10      2011 Loss Imminent   0.3407881  939
-11      2011       Neutral   0.3148911 1699
-12      2011  Win Imminent   0.2884972 1078
-13      2012 Loss Imminent   0.3374643 1049
-14      2012       Neutral   0.3095910 1418
-15      2012  Win Imminent   0.2605703 1017
-16      2013 Loss Imminent   0.3485663 1116
-17      2013       Neutral   0.2989431 1987
-18      2013  Win Imminent   0.2823045 1215
-19      2014 Loss Imminent   0.3486726 1130
-20      2014       Neutral   0.3244397 1874
-21      2014  Win Imminent   0.2859425 1252
-22      2015 Loss Imminent   0.3407173  948
-23      2015       Neutral   0.3086817 1555
-24      2015  Win Imminent   0.2573754  983
-25      2016 Loss Imminent   0.3193658  883
-26      2016       Neutral   0.3011127 1438
-27      2016  Win Imminent   0.2670157  955
-> set.seed(0)
-> bottom.pitches.fit <- bottom.pitches
-> bottom.pitches %>% 
-+   filter(!is.na(sz_bot)) %>% 
-+   group_by(stand) %>% 
-+   summarise(ave_bot = mean(sz_bot), 
-+             ave_top = mean(sz_top), n = n())
-# A tibble: 2 x 4
-  stand  ave_bot  ave_top     n
-  <chr>    <dbl>    <dbl> <int>
-1     L 1.603585 3.395832 13893
-2     R 1.582352 3.412287 17046
-> bottom.pitches.fit <- bottom.pitches.fit %>% 
-+   mutate(hdiff = ifelse(stand == "L", .5*(sz_bot - 1.603585) + .5*(sz_top - 3.395832), 
-+                         .5*(sz_bot - 1.582352) + .5*(sz_top - 3.412287)), pz = pz - hdiff)
+
 > m1 <- bam(strike ~ s(px, pz, by = factor(stand), k = 50) + 
 +             s(px, pz, by = factor(game.state), k = 50) + 
 +           factor(game.state) + factor(stand) + 
@@ -328,6 +243,13 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 
 R-sq.(adj) =   0.68   Deviance explained = 64.8%
 fREML =  35244  Scale est. = 1         n = 30939
+
+
+
+###############################################################
+######### Comparison of AIC values and likelihood ratio test
+###############################################################
+
 > AIC(m1)  ## final model
 [1] 13546.14
 > AIC(m2)  ## naive model
