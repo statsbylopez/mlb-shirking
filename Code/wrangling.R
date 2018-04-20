@@ -46,7 +46,7 @@ df.pitches.bottom <- df.pitches.bottom  %>%
 
 df.pitches.bottom <- df.pitches.bottom %>% mutate(month = month(game_date)) %>% filter(month < 10, game_year < 2017) %>% select(-month)
 
-## overall number of pitches
+## overall number of pitches 
 nrow(df.pitches.bottom) 
 
 ## number of true strikes and balls
