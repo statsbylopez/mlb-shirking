@@ -17,7 +17,7 @@ odds.ratio <- function(p1, p2, n1, n2, n3, n4){
   return(c(or, low, upp))}
 
 ### Read in data
-bottom.pitches <- read_csv("~/bottom_tenth_pitches.csv")
+bottom.pitches <- read_csv("~/Dropbox/mlb-shirking/Data/bottom_tenth_pitches.csv")
 
 
 ################################################################################
@@ -165,7 +165,7 @@ anova(m1, m2, test="LRT")  ## Reject naive model in factor of a term for score s
 #### Visualizing changes in strike zone
 ################################################################################
 
-seq <- 0.05 ## Change to 0.01 for exact numbers as in the manuscript
+seq <- 0.05 
 pre <- expand.grid(px = seq(-2, 2, seq), 
                    pz = seq(0.5, 4.5, seq), 
                    strikes = 0, 
