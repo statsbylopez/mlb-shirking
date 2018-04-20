@@ -31,8 +31,7 @@ start.dates <- c(seq(ymd('2008-03-31'),ymd('2008-10-30'), by = 'weeks'),
                  seq(ymd('2013-04-01'),ymd('2013-10-30'), by = 'weeks'), 
                  seq(ymd('2014-03-30'),ymd('2014-10-30'), by = 'weeks'), 
                  seq(ymd('2015-04-05'),ymd('2015-10-30'), by = 'weeks'), 
-                 seq(ymd('2016-04-03'),ymd('2016-10-30'), by = 'weeks'), 
-                 seq(ymd('2017-04-02'),ymd('2017-10-30'), by = 'weeks'))
+                 seq(ymd('2016-04-03'),ymd('2016-10-30'), by = 'weeks'))
 
 end.dates  <- c(seq(ymd('2008-04-06'),ymd('2008-11-06'), by = 'weeks'), 
                 seq(ymd('2009-04-11'),ymd('2009-11-06'), by = 'weeks'), 
@@ -42,8 +41,7 @@ end.dates  <- c(seq(ymd('2008-04-06'),ymd('2008-11-06'), by = 'weeks'),
                 seq(ymd('2013-04-07'),ymd('2013-11-06'), by = 'weeks'), 
                 seq(ymd('2014-04-05'),ymd('2014-11-06'), by = 'weeks'), 
                 seq(ymd('2015-04-11'),ymd('2015-11-06'), by = 'weeks'), 
-                seq(ymd('2016-04-09'),ymd('2016-11-06'), by = 'weeks'), 
-                seq(ymd('2017-04-08'),ymd('2017-11-06'), by = 'weeks'))
+                seq(ymd('2016-04-09'),ymd('2016-11-06'), by = 'weeks'))
 
 
 start.dates[92]
